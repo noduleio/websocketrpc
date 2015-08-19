@@ -1,0 +1,11 @@
+{
+  "name": "websocketrpc",
+  "version": "1.0.0",
+  "description": "Simple RPC mechanism running over WebSockets",
+  "main": "websocket_rpc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "CMG Research Ltd",
+  "license": "BSD-2-Clause"
+}
