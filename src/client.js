@@ -5,10 +5,11 @@ var _ = require('lodash');
 var Transport = require('./websocket_transport');
 
 
-class RPC extends EventEmitter {
-	constructor() {
+class Client extends EventEmitter {
+	constructor(clientId) {
 		super();
 		this.isConnected = false;
+		this.clientId = clientId || uuid.v4();
 	}
 
 	connect(wsURI, authToken) {
@@ -24,7 +25,6 @@ class RPC extends EventEmitter {
 			this.isConnected = false;
 			this.connectPromise = { resolve, reject };
 			this.disconnecting = false;
-			this.clientId = uuid.v4();
 			this.wsURI = wsURI;
 			this.authToken = authToken;
 			this.transport = new Transport();
@@ -45,11 +45,9 @@ class RPC extends EventEmitter {
 			this.transport.on(Transport.reconnectingEvent, () => {
 			});
 			this.transport.on(Transport.lostConnectionEvent, () => {
-				console.log('lost connection');
 				this.disconnected(false);
 			});
 			this.transport.on(Transport.disconnectedEvent, () => {
-				console.log('disconnected');
 				this.disconnected(true);
 			});
 
@@ -170,17 +168,15 @@ class RPC extends EventEmitter {
 
 	addLocalObject(localObject) {
 		var self = this;
-		log.debug('Adding local object');
-		var objId = uuid.v4();
-		log.debug('uuid', objId);
+		var objId = localObject.objId || uuid.v4();
 		this.localObjects[objId] = localObject;
 
 		var functions = _.functions(localObject);
 
 		if(localObject.privateMethods) {
 			functions = _.without(functions, localObject.privateMethods);
-			functions = _.reject(functions, function(name) { return name.indexOf('_') === 0 || name.indexOf('$') === 0; });
 		}
+		functions = _.reject(functions, function(name) { return name.indexOf('_') === 0 || name.indexOf('$') === 0; });
 
 		var propertyNames = _.without(_.keys(localObject), _.functions(localObject));
 		propertyNames = _.reject(propertyNames, function(name) { return name.indexOf('_') === 0 || name.indexOf('$') === 0; });
@@ -326,4 +322,4 @@ class RPC extends EventEmitter {
 	}
 }
 
-module.exports = RPC;
+module.exports = Client;

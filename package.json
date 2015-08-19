@@ -2,10 +2,31 @@
   "name": "websocketrpc",
   "version": "1.0.0",
   "description": "Simple RPC mechanism running over WebSockets",
-  "main": "websocket_rpc.js",
+  "main": "index.js",
+  "repository": "https://github.com/noduleio/websocketrpc",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "babel -d lib/ src/",
+    "prepublish": "npm run compile",
+    "test": "mocha --compilers js:babel/register --reporter spec",
+    "test-continuous": "mocha --compilers js:babel/register --watch --reporter spec",
+    "lint": "eslint src"
   },
   "author": "CMG Research Ltd",
-  "license": "BSD-2-Clause"
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "bunyan": "^1.4.0",
+    "events": "^1.0.2",
+    "lodash": "^3.10.1",
+    "mocha": "^2.2.5",
+    "redis": "^0.12.1",
+    "uuid": "^2.0.1",
+    "ws": "^0.7.2"
+  },
+  "devDependencies": {
+    "babel": "^5.8.21",
+    "babel-eslint": "^4.0.10",
+    "chai": "^3.2.0",
+    "eslint": "^1.2.0",
+    "mocha": "^2.2.5"
+  }
 }

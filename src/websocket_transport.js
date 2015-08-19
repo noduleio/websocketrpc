@@ -106,8 +106,12 @@ class ConnectedState extends State {
 	}
 	onmessage(context, call) {
 		// got a message from the server
-		log.debug('Got a message', call);
-		context.emit(Transport.messageEvent, call);
+		if(call.method === 'rejected') {
+			context.processNextState(new RejectedState());
+		} else {
+			log.debug('Got a message', call);
+			context.emit(Transport.messageEvent, call);
+		}
 	}
 	sendMessage(context, message) {
 		try {
@@ -161,6 +165,18 @@ class ReconnectState extends State {
 		// reconnected - need to reauthenticate
 		context.processNextState(new AuthenticatingState());
 	}
+}
+
+class RejectedState extends State {
+	enterState(context) {
+		context.closeWebSocket();
+	}
+	oncloseOrError(context) {
+		context.processNextState(new DisconnectedState());
+	}
+	exitState(context) {
+		context.emit(Transport.disconnectedEvent);
+	}	
 }
 
 class DisconnectingState extends State {
@@ -249,9 +265,7 @@ class Transport extends EventEmitter {
 	}
 
 	connectNotAuthorised() {
-		console.log('authentication failed');
 		if(this.connectPromise) {
-			console.log('rejecting connect');
 			this.connectPromise.reject(new Error('Authentication Failed'));
 			this.connectPromise = null;
 		}
